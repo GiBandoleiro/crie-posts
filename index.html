@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criador de Posts para Instagram</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Lato:wght@400;700;900&family=Montserrat:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- html2canvas for downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .range-thumb-cyan::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #06b6d4; cursor: pointer; border-radius: 50%; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #06b6d4; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+        .control-panel::-webkit-scrollbar { width: 4px; }
+        .control-panel::-webkit-scrollbar-track { background: transparent; }
+        .control-panel::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 20px; }
+        .transparent-bg { background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex flex-col lg:flex-row p-4 lg:p-6 gap-6 min-h-screen">
+        <!-- PAINEL DE CONTROLOS (ESQUERDA) -->
+        <div class="control-panel lg:w-1/3 xl:w-1/4 bg-gray-800 rounded-2xl p-4 md:p-6 flex flex-col gap-5 shadow-2xl lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
+            <div class="text-center"><h1 class="text-xl sm:text-2xl font-bold text-cyan-400">Criador de Posts</h1><p class="text-gray-400 text-sm mt-1">Crie carrosséis para o Instagram</p></div>
+            <!-- removido geração de IA -->
+            <div class="text-gray-400 text-sm text-center mt-4">Função de geração de imagem com IA foi removida.</div>
+        </div>
+        <!-- PREVIEW -->
+        <div class="flex-1 flex flex-col items-center justify-center p-0 md:p-6">
+            <div id="preview-container" class="w-full max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center gap-4">
+                <div class="w-full flex items-center justify-center relative">
+                    <div id="slide-wrapper" class="w-full shadow-2xl relative aspect-[1080/1350] overflow-hidden">
+                        <div id="slide-background" class="absolute inset-0 w-full h-full bg-cover"></div>
+                        <div id="slide-content" class="w-full h-full relative z-10">
+                            <div id="text-wrapper" class="absolute p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <p id="slide-text" class="whitespace-pre-wrap break-words w-full">Seu texto aqui...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="download-btn" class="bg-cyan-500 text-white font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition">Baixar Imagem</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slideText = document.getElementById('slide-text');
+        const downloadBtn = document.getElementById('download-btn');
+        const slideWrapper = document.getElementById('slide-wrapper');
+        downloadBtn.addEventListener('click', () => {
+            html2canvas(slideWrapper, { allowTaint: true, useCORS: true, scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.download = 'post_instagram.png';
+                link.click();
+            });
+        });
+    });
+    </script>
+</body>
+</html>

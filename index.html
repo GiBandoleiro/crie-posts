@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criador de Posts para Instagram</title>
+    <title>Criador de Posts para Instagram com IA</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,47 +26,649 @@
         .control-panel::-webkit-scrollbar-track { background: transparent; }
         .control-panel::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 20px; }
         .transparent-bg { background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+        .generating-overlay::after { content: ''; position: absolute; inset: 0; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10; }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
+
     <div class="flex flex-col lg:flex-row p-4 lg:p-6 gap-6 min-h-screen">
+
         <!-- PAINEL DE CONTROLOS (ESQUERDA) -->
         <div class="control-panel lg:w-1/3 xl:w-1/4 bg-gray-800 rounded-2xl p-4 md:p-6 flex flex-col gap-5 shadow-2xl lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
-            <div class="text-center"><h1 class="text-xl sm:text-2xl font-bold text-cyan-400">Criador de Posts</h1><p class="text-gray-400 text-sm mt-1">Crie carrosséis para o Instagram</p></div>
-            <!-- removido geração de IA -->
-            <div class="text-gray-400 text-sm text-center mt-4">Função de geração de imagem com IA foi removida.</div>
-        </div>
-        <!-- PREVIEW -->
-        <div class="flex-1 flex flex-col items-center justify-center p-0 md:p-6">
-            <div id="preview-container" class="w-full max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center gap-4">
-                <div class="w-full flex items-center justify-center relative">
-                    <div id="slide-wrapper" class="w-full shadow-2xl relative aspect-[1080/1350] overflow-hidden">
-                        <div id="slide-background" class="absolute inset-0 w-full h-full bg-cover"></div>
-                        <div id="slide-content" class="w-full h-full relative z-10">
-                            <div id="text-wrapper" class="absolute p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <p id="slide-text" class="whitespace-pre-wrap break-words w-full">Seu texto aqui...</p>
+            <div class="text-center"><h1 class="text-xl sm:text-2xl font-bold text-cyan-400">Criador de Posts com IA</h1><p class="text-gray-400 text-sm mt-1">Crie carrosséis para o Instagram</p></div>
+            
+            <div class="flex flex-col gap-5" id="config-sections">
+                <!-- Conteúdo -->
+                <div class="order-1">
+                    <label class="font-semibold mb-2" for="currentSlideText">1. Texto do Slide Atual</label>
+                    <textarea id="currentSlideText" class="w-full h-32 bg-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-cyan-500 border border-gray-600 transition resize-none" placeholder="Escreva o texto para este slide..."></textarea>
+                </div>
+
+                <!-- Formato e Logótipo -->
+                <div class="flex flex-col gap-4 order-2">
+                    <div>
+                        <h3 class="font-semibold mb-2 text-sm text-center">2. Formato</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="format-square" class="text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Quadrado</button>
+                            <button id="format-portrait" class="text-sm py-2 rounded-lg transition bg-cyan-500 text-white shadow-lg">Retrato</button>
+                            <button id="format-story" class="text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Story</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold mb-2 text-sm text-center">3. O seu Logótipo</h3>
+                        <label for="logoUpload" class="w-full text-sm text-center py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600 cursor-pointer block">
+                            <span id="logo-upload-text">Carregar Logótipo</span>
+                        </label>
+                        <input id="logoUpload" type="file" class="hidden" accept="image/*">
+                    </div>
+                </div>
+                <div id="logo-feedback" class="hidden items-center justify-between bg-gray-700/50 p-2 rounded-lg order-3"><img id="logo-preview-thumb" src="" class="w-10 h-10 object-contain rounded-md bg-black/20"><button id="remove-logo" class="text-xs text-red-400 hover:text-red-300">Remover</button></div>
+
+                <!-- Estilo do Texto -->
+                <div class="bg-gray-700/50 p-4 rounded-lg space-y-4 order-4">
+                    <h3 class="font-semibold text-center">4. Estilo do Texto</h3>
+                    <div><label class="text-sm font-medium">Fonte</label><select id="fontFamily" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option>Poppins</option><option>Montserrat</option><option>Roboto</option><option>Lato</option><option>Oswald</option><option>Playfair Display</option><option>Anton</option><option>Bebas Neue</option></select></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-sm font-medium">Tamanho (<span id="fontSizeValue">48</span>px)</label><input type="range" id="fontSize" min="16" max="120" value="48" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                        <div><label class="text-sm font-medium">Peso (<span id="fontWeightValue">700</span>)</label><input type="range" id="fontWeight" min="100" max="900" step="100" value="700" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-sm font-medium">Largura Texto (<span id="textWidthValue">90</span>%)</label><input type="range" id="textWidth" min="30" max="100" value="90" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                        <div><label class="text-sm font-medium">Esticar Letras (<span id="letterSpacingValue">0</span>px)</label><input type="range" id="letterSpacing" min="-5" max="20" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 items-center">
+                        <div><label class="text-sm font-medium">Cor</label><input type="color" id="fontColor" value="#FFFFFF" class="w-full h-10 p-1 bg-gray-600 border border-gray-500 rounded-md cursor-pointer"></div>
+                        <div><label class="text-sm font-medium">Opacidade (<span id="textOpacityValue">100</span>%)</label><input type="range" id="textOpacity" min="0" max="100" value="100" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                    </div>
+                    <div><label class="text-sm font-medium">Alinh.</label><select id="textAlign" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option value="left">Esq.</option><option value="center" selected>Centro</option><option value="right">Dir.</option></select></div>
+                </div>
+                
+                <!-- Efeitos de Texto -->
+                <div class="bg-gray-700/50 p-4 rounded-lg space-y-4 order-5">
+                     <h3 class="font-semibold text-center">5. Efeitos de Texto</h3>
+                     <div><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="shadowEnable" class="h-4 w-4 rounded bg-gray-600 text-cyan-500 focus:ring-cyan-500" checked>Sombra</label><div id="shadowControls" class="space-y-3 mt-2 pl-2 border-l-2 border-gray-600"><div class="grid grid-cols-2 gap-4"><div><label class="text-xs">Cor</label><input type="color" id="shadowColor" value="#000000" class="w-full h-8 p-1 bg-gray-600 border-gray-500 rounded cursor-pointer"></div><div><label class="text-xs">Desfoque (<span id="shadowBlurValue">5</span>px)</label><input type="range" id="shadowBlur" min="0" max="25" value="5" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer range-thumb-cyan"></div></div><div class="mt-2"><label class="text-xs">Opacidade Sombra (<span id="shadowOpacityValue">50</span>%)</label><input type="range" id="shadowOpacity" min="0" max="100" value="50" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer range-thumb-cyan"></div></div></div>
+                     <div><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="strokeEnable" class="h-4 w-4 rounded bg-gray-600 text-cyan-500 focus:ring-cyan-500">Contorno</label><div id="strokeControls" class="hidden space-y-3 mt-2 pl-2 border-l-2 border-gray-600"><div class="grid grid-cols-2 gap-4"><div><label class="text-xs">Cor</label><input type="color" id="strokeColor" value="#000000" class="w-full h-8 p-1 bg-gray-600 border-gray-500 rounded cursor-pointer"></div><div><label class="text-xs">Espessura (<span id="strokeWidthValue">1</span>px)</label><input type="range" id="strokeWidth" min="0" max="10" step="0.5" value="1" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer range-thumb-cyan"></div></div></div></div>
+                </div>
+
+                <!-- Geração de Fundo -->
+                <div class="bg-gray-700/50 p-4 rounded-lg space-y-4 order-6">
+                    <h3 class="font-semibold text-center">6. Fundo</h3>
+                    <div id="bgBrightnessControls" class="space-y-1">
+                        <label class="text-sm font-medium">Brilho do Fundo</label>
+                        <div id="brightness-presets" class="grid grid-cols-4 gap-1 text-xs">
+                            <button data-value="25" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">25%</button>
+                            <button data-value="50" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">50%</button>
+                            <button data-value="75" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">75%</button>
+                            <button data-value="100" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">100%</button>
+                            <button data-value="125" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">125%</button>
+                            <button data-value="150" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">150%</button>
+                            <button data-value="175" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">175%</button>
+                            <button data-value="200" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">200%</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-xs" id="bg-mode-selector">
+                        <button data-mode="prompt" class="bg-mode-btn py-2 rounded-lg bg-cyan-500 text-white">IA</button>
+                        <label for="bgUpload" data-mode="upload" class="bg-mode-btn text-center py-2 rounded-lg bg-gray-700 cursor-pointer">Upload</label>
+                        <button data-mode="solid" class="bg-mode-btn py-2 rounded-lg bg-gray-700">Cor</button>
+                        <button data-mode="gradient" class="bg-mode-btn py-2 rounded-lg bg-gray-700">Degradê</button>
+                        <button data-mode="transparent" class="col-span-2 bg-mode-btn py-2 rounded-lg bg-gray-700">Sem Fundo</button>
+                     </div>
+                    <input type="file" id="bgUpload" class="hidden" accept="image/*">
+                    <textarea id="custom-prompt" class="hidden w-full h-20 bg-gray-600 rounded-lg p-3 text-sm" placeholder="Ex: Um gato astronauta... (deixe em branco para usar o texto do slide)"></textarea>
+                    <div id="solid-color-picker" class="hidden"><label class="text-sm">Cor de Fundo</label><input type="color" id="bgColorSolid" value="#4A5568" class="w-full h-10 p-1 bg-gray-600 rounded-md"></div>
+                    <div id="gradient-color-picker" class="hidden space-y-2">
+                        <div class="grid grid-cols-2 gap-2"><div><label class="text-sm">Cor 1</label><input type="color" id="bgColorGradient1" value="#4A5568" class="w-full h-10 p-1 bg-gray-600 rounded-md"></div><div><label class="text-sm">Cor 2</label><input type="color" id="bgColorGradient2" value="#2D3748" class="w-full h-10 p-1 bg-gray-600 rounded-md"></div></div>
+                         <div class="space-y-1">
+                             <label class="text-sm">Ângulo do Degradê</label>
+                             <div id="angle-presets" class="grid grid-cols-4 gap-1 text-xs">
+                                 <button data-value="0" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">0°</button>
+                                 <button data-value="45" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">45°</button>
+                                 <button data-value="90" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">90°</button>
+                                 <button data-value="135" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">135°</button>
+                                 <button data-value="180" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">180°</button>
+                                 <button data-value="225" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">225°</button>
+                                 <button data-value="270" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">270°</button>
+                                 <button data-value="315" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">315°</button>
+                             </div>
+                         </div>
+                    </div>
+                     <div id="ai-controls" class="space-y-2">
+                         <button id="generate-btn" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold py-2 rounded-lg text-sm"><span id="generate-btn-text">Gerar Imagem de Fundo</span></button>
+                         <div id="ai-preview-container" class="hidden items-center justify-between bg-gray-900/50 p-2 rounded-lg">
+                             <img id="ai-preview-thumb" src="" class="w-10 h-10 object-cover rounded-md bg-black/20">
+                             <button id="apply-ai-bg" class="text-xs text-cyan-300 hover:text-cyan-200 bg-cyan-800/50 px-2 py-1 rounded">Aplicar Fundo</button>
+                         </div>
+                     </div>
+                     <!-- NEW Background Image Controls -->
+                     <div id="bg-image-controls" class="hidden bg-gray-900/50 p-3 rounded-lg space-y-4">
+                        <h4 class="font-semibold text-sm text-center">Controlos da Imagem de Fundo</h4>
+                        <div>
+                            <label class="text-sm">Zoom do Fundo</label>
+                            <div id="zoom-presets" class="grid grid-cols-5 gap-1 text-xs mt-1">
+                                <button data-value="100" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">100%</button>
+                                <button data-value="125" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">125%</button>
+                                <button data-value="150" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">150%</button>
+                                <button data-value="175" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">175%</button>
+                                <button data-value="200" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">200%</button>
+                            </div>
+                        </div>
+                        <div>
+                             <label class="text-sm text-center block">Posição do Fundo</label>
+                            <div class="flex justify-center items-center gap-4 mt-2">
+                                <button id="bg-pos-left" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                                <div class="flex flex-col gap-1">
+                                     <button id="bg-pos-up" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button>
+                                     <button id="bg-pos-down" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                                </div>
+                                <button id="bg-pos-right" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
                             </div>
                         </div>
                     </div>
+                    <button id="apply-to-all" class="w-full text-xs py-2 rounded-lg bg-gray-600 hover:bg-gray-500 transition">Aplicar estilo a todos os slides</button>
+                    <p id="error-message" class="text-xs text-red-400 text-center"></p>
                 </div>
-                <button id="download-btn" class="bg-cyan-500 text-white font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition">Baixar Imagem</button>
+
+                <!-- Posições e Tamanho do Logótipo -->
+                <div id="logo-controls-wrapper" class="hidden bg-gray-700/50 p-3 rounded-lg space-y-4 order-last lg:order-7">
+                    <h4 class="font-semibold text-sm text-center">Controlos do Logótipo</h4>
+                    <div>
+                        <label class="text-sm">Tamanho do Logótipo (<span id="logoSizeValue">16</span>%)</label>
+                        <input type="range" id="logoSize" min="5" max="50" value="16" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col items-center gap-1"><span class="text-xs">Altura</span><div class="flex gap-1" id="pos-btn-group-logo-y"><button data-pos="up" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button><button data-pos="center" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="12" x2="3" y2="12"></line></svg></button><button data-pos="down" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button></div></div>
+                        <div class="flex flex-col items-center gap-1"><span class="text-xs">Posição</span><div class="flex gap-1" id="pos-btn-group-logo-x"><button data-pos="left" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><button data-pos="center" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="21" x2="12" y2="3"></line></svg></button><button data-pos="right" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button></div></div>
+                    </div>
+                </div>
+                 <div id="text-position-controls" class="bg-gray-700/50 p-3 rounded-lg space-y-2 order-last lg:order-8">
+                     <h4 class="font-semibold text-sm text-center">Posição do Texto</h4>
+                     <div class="grid grid-cols-2 gap-4">
+                         <div class="flex flex-col items-center gap-1"><span class="text-xs">Altura</span><div class="flex gap-1" id="pos-btn-group-text-y"><button data-pos="up" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button><button data-pos="center" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="12" x2="3" y2="12"></line></svg></button><button data-pos="down" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button></div></div>
+                         <div class="flex flex-col items-center gap-1"><span class="text-xs">Posição</span><div class="flex gap-1" id="pos-btn-group-text-x"><button data-pos="left" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button><button data-pos="center" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="21" x2="12" y2="3"></line></svg></button><button data-pos="right" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button></div></div>
+                     </div>
+                 </div>
             </div>
         </div>
+
+        <!-- PAINEL DE VISUALIZAÇÃO (DIREITA) -->
+        <div class="flex-1 flex flex-col items-center justify-center p-0 md:p-6">
+            <div id="preview-container" class="w-full max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center gap-4">
+                <div class="w-full flex items-center justify-center relative">
+                    <button id="prev-slide" class="absolute left-0 -translate-x-full p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <div id="slide-wrapper" class="w-full shadow-2xl relative aspect-[1080/1350] overflow-hidden">
+                        <div class="absolute inset-0 z-20 hidden place-items-center" id="generating-feedback"><div class="loader"></div></div>
+                        <div id="slide-background" class="absolute inset-0 w-full h-full bg-cover transition-all duration-300"></div>
+                        <div id="slide-content" class="w-full h-full relative z-10">
+                            <div id="text-wrapper" class="absolute p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><p id="slide-text" class="whitespace-pre-wrap break-words w-full transition-all"></p></div>
+                            <img id="slide-logo" src="" alt="Logótipo" class="absolute h-auto object-contain hidden" style="top: 92%; left: 92%; transform: translate(-50%, -50%);"/>
+                            <div id="slide-counter" class="absolute bottom-4 left-4 text-xs text-white/50 z-30"></div>
+                        </div>
+                    </div>
+                    <button id="next-slide" class="absolute right-0 translate-x-full p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                </div>
+                 <div class="w-full flex items-center justify-between mt-4">
+                     <div class="flex gap-4">
+                          <button id="add-slide" class="text-xs bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition">+ Adicionar Slide</button>
+                          <button id="remove-slide" class="text-xs bg-red-800/50 hover:bg-red-800/80 text-red-300 rounded-lg px-3 py-2 transition">- Remover Slide</button>
+                     </div>
+                     <div class="flex flex-col items-center"><button id="download-btn" class="flex items-center gap-2 bg-cyan-500 text-white font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition text-sm sm:text-base">Baixar Imagem</button><span id="slide-nav-counter" class="text-xs text-gray-500 mt-1"></span></div>
+                     <div class="w-24"> <!-- Espaço em branco para alinhar com o botão "Adicionar" --> </div>
+                 </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-8 text-center">Use *palavra* para negrito. Use os controlos para ajustar.</p>
+        </div>
     </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const slideText = document.getElementById('slide-text');
-        const downloadBtn = document.getElementById('download-btn');
-        const slideWrapper = document.getElementById('slide-wrapper');
-        downloadBtn.addEventListener('click', () => {
-            html2canvas(slideWrapper, { allowTaint: true, useCORS: true, scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png', 1.0);
-                link.download = 'post_instagram.png';
-                link.click();
+        const getEl = (id) => document.getElementById(id);
+        const elements = {
+            postText: getEl('currentSlideText'),
+            logoUpload: getEl('logoUpload'), logoUploadText: getEl('logo-upload-text'), fontFamily: getEl('fontFamily'), fontSize: getEl('fontSize'),
+            fontSizeValue: getEl('fontSizeValue'), fontWeight: getEl('fontWeight'), fontWeightValue: getEl('fontWeightValue'), fontColor: getEl('fontColor'),
+            textAlign: getEl('textAlign'), textOpacity: getEl('textOpacity'), textOpacityValue: getEl('textOpacityValue'), textWidth: getEl('textWidth'), textWidthValue: getEl('textWidthValue'),
+            letterSpacing: getEl('letterSpacing'), letterSpacingValue: getEl('letterSpacingValue'),
+            shadowEnable: getEl('shadowEnable'), shadowControls: getEl('shadowControls'), shadowColor: getEl('shadowColor'),
+            shadowBlur: getEl('shadowBlur'), shadowBlurValue: getEl('shadowBlurValue'), shadowOpacity: getEl('shadowOpacity'), shadowOpacityValue: getEl('shadowOpacityValue'),
+            strokeEnable: getEl('strokeEnable'), strokeControls: getEl('strokeControls'), strokeColor: getEl('strokeColor'), strokeWidth: getEl('strokeWidth'),
+            strokeWidthValue: getEl('strokeWidthValue'), generateBtn: getEl('generate-btn'), generateBtnText: getEl('generate-btn-text'),
+            errorMessage: getEl('error-message'), previewContainer: getEl('preview-container'), slideWrapper: getEl('slide-wrapper'),
+            slideBackground: getEl('slide-background'), slideContent: getEl('slide-content'),
+            textWrapper: getEl('text-wrapper'), slideText: getEl('slide-text'), slideLogo: getEl('slide-logo'),
+            slideCounter: getEl('slide-counter'), prevSlide: getEl('prev-slide'), nextSlide: getEl('next-slide'), downloadBtn: getEl('download-btn'),
+            slideNavCounter: getEl('slide-nav-counter'), textPositionControls: getEl('text-position-controls'), logoPositionControls: getEl('logo-position-controls'),
+            logoFeedback: getEl('logo-feedback'), logoPreviewThumb: getEl('logo-preview-thumb'), removeLogo: getEl('remove-logo'), bgModeSelector: getEl('bg-mode-selector'),
+            customPrompt: getEl('custom-prompt'), generatingFeedback: getEl('generating-feedback'), bgBrightnessControls: getEl('bgBrightnessControls'), 
+            brightnessPresets: getEl('brightness-presets'),
+            applyToAll: getEl('apply-to-all'),
+            solidColorPicker: getEl('solid-color-picker'), bgColorSolid: getEl('bgColorSolid'), gradientColorPicker: getEl('gradient-color-picker'),
+            bgColorGradient1: getEl('bgColorGradient1'), bgColorGradient2: getEl('bgColorGradient2'), 
+            anglePresets: getEl('angle-presets'),
+            aiControls: getEl('ai-controls'), aiPreviewContainer: getEl('ai-preview-container'), aiPreviewThumb: getEl('ai-preview-thumb'), applyAiBg: getEl('apply-ai-bg'),
+            posBtnGroupTextY: getEl('pos-btn-group-text-y'), posBtnGroupTextX: getEl('pos-btn-group-text-x'),
+            posBtnGroupLogoY: getEl('pos-btn-group-logo-y'), posBtnGroupLogoX: getEl('pos-btn-group-logo-x'),
+            logoControlsWrapper: getEl('logo-controls-wrapper'), logoSize: getEl('logoSize'), logoSizeValue: getEl('logoSizeValue'),
+            addSlide: getEl('add-slide'), removeSlide: getEl('remove-slide'),
+            formatSquare: getEl('format-square'), formatPortrait: getEl('format-portrait'), formatStory: getEl('format-story'),
+            // New elements
+            bgUpload: getEl('bgUpload'), bgImageControls: getEl('bg-image-controls'), zoomPresets: getEl('zoom-presets'),
+            bgPosUp: getEl('bg-pos-up'), bgPosDown: getEl('bg-pos-down'), bgPosLeft: getEl('bg-pos-left'), bgPosRight: getEl('bg-pos-right'),
+        };
+
+        let state = {
+            slides: [], activeSlide: 0, format: 'portrait', logo: null, logoPos: { x: 92, y: 92 }, logoSize: 16, scale: 1, generatedAiImage: null,
+        };
+
+        const getDefaultSlideConfig = (text = "") => ({
+            text, textPos: { x: 50, y: 50 },
+            styles: { fontFamily: 'Poppins', fontSize: 48, fontWeight: 700, fontColor: '#FFFFFF', textAlign: 'center', textOpacity: 100, letterSpacing: 0, textWidth: 90, shadowEnable: true, shadowColor: '#000000', shadowBlur: 5, shadowOpacity: 50, strokeEnable: false, strokeColor: '#000000', strokeWidth: 1 },
+            background: { mode: 'prompt', brightness: 100, image: null, solid: '#4A5568', gradient: ['#4A5568', '#2D3748'], gradientAngle: 180, bgPos: { x: 50, y: 50 }, bgSize: 100 }
+        });
+        
+        const hexToRgba = (hex, alpha = 1) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!result) return `rgba(0,0,0,${alpha})`;
+            const [r, g, b] = [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+            return `rgba(${r},${g},${b},${alpha})`;
+        };
+        const parseBoldText = (text) => text.replace(/\*(.*?)\*/g, '<strong style="font-weight: 900;">$1</strong>');
+
+        const updateControlsFromState = () => {
+             const slide = state.slides[state.activeSlide];
+            if (!slide) return;
+            const { styles, background } = slide;
+            Object.keys(styles).forEach(key => { const el = elements[key]; if (el) { if (el.type === 'checkbox') el.checked = styles[key]; else el.value = styles[key]; } });
+            
+            elements.bgColorSolid.value = background.solid;
+            elements.bgColorGradient1.value = background.gradient[0];
+            elements.bgColorGradient2.value = background.gradient[1];
+            
+            elements.brightnessPresets.querySelectorAll('button').forEach(btn => {
+                const isActive = parseFloat(btn.dataset.value) === background.brightness;
+                btn.classList.toggle('bg-cyan-500', isActive); btn.classList.toggle('text-white', isActive); btn.classList.toggle('bg-gray-600', !isActive);
+            });
+            elements.anglePresets.querySelectorAll('button').forEach(btn => {
+                const isActive = parseFloat(btn.dataset.value) === background.gradientAngle;
+                btn.classList.toggle('bg-cyan-500', isActive); btn.classList.toggle('text-white', isActive); btn.classList.toggle('bg-gray-600', !isActive);
+            });
+
+             const valueDisplayMap = { fontSize: 'fontSizeValue', fontWeight: 'fontWeightValue', letterSpacing: 'letterSpacingValue', textWidth: 'textWidthValue', shadowBlur: 'shadowBlurValue', strokeWidth: 'strokeWidthValue', textOpacity: 'textOpacityValue', shadowOpacity: 'shadowOpacityValue', logoSize: 'logoSizeValue' };
+            Object.keys(valueDisplayMap).forEach(id => { if (elements[id]) elements[valueDisplayMap[id]].innerText = elements[id].value; });
+            
+            elements.shadowControls.classList.toggle('hidden', !styles.shadowEnable);
+            elements.strokeControls.classList.toggle('hidden', !styles.strokeEnable);
+            updateBgControlsVisibility(background.mode);
+
+            // Update zoom presets
+            elements.zoomPresets.querySelectorAll('button').forEach(btn => {
+                const isActive = parseFloat(btn.dataset.value) === background.bgSize;
+                btn.classList.toggle('bg-cyan-500', isActive); 
+                btn.classList.toggle('text-white', isActive); 
+                btn.classList.toggle('bg-gray-600', !isActive);
+            });
+        };
+        
+        const updateBgControlsVisibility = (mode) => {
+            document.querySelectorAll('.bg-mode-btn').forEach(btn => { const isActive = btn.dataset.mode === mode; btn.classList.toggle('bg-cyan-500', isActive); btn.classList.toggle('text-white', isActive); btn.classList.toggle('bg-gray-700', !isActive); });
+            const isTransparent = mode === 'transparent';
+            elements.customPrompt.classList.toggle('hidden', mode !== 'prompt');
+            elements.solidColorPicker.classList.toggle('hidden', mode !== 'solid');
+            elements.gradientColorPicker.classList.toggle('hidden', mode !== 'gradient');
+            elements.aiControls.classList.toggle('hidden', mode !== 'prompt');
+            elements.bgBrightnessControls.classList.toggle('hidden', isTransparent);
+            elements.generateBtn.disabled = isTransparent;
+            elements.generateBtnText.innerText = isTransparent ? 'Geração Desativada' : 'Gerar Imagem de Fundo';
+
+            const slide = state.slides[state.activeSlide];
+            const showImageControls = slide && slide.background.image && (mode === 'prompt' || mode === 'upload');
+            elements.bgImageControls.classList.toggle('hidden', !showImageControls);
+        };
+
+        const updatePreview = () => {
+            const slide = state.slides[state.activeSlide];
+            if (!slide) return;
+            
+            let aspectRatioClass;
+            switch(state.format) {
+                case 'square': aspectRatioClass = 'aspect-square'; break;
+                case 'story': aspectRatioClass = 'aspect-[9/16]'; break;
+                default: aspectRatioClass = 'aspect-[1080/1350]';
+            }
+            elements.slideWrapper.className = `w-full shadow-2xl relative overflow-hidden ${aspectRatioClass}`;
+            
+            state.scale = Math.min(elements.previewContainer.clientWidth / 500, 1.2);
+            elements.slideText.innerHTML = parseBoldText(slide.text);
+            elements.textWrapper.style.top = `${slide.textPos.y}%`;
+            elements.textWrapper.style.left = `${slide.textPos.x}%`;
+            elements.textWrapper.style.width = `${slide.styles.textWidth}%`;
+            Object.assign(elements.slideText.style, {
+                fontFamily: `'${slide.styles.fontFamily}', sans-serif`,
+                fontSize: `${slide.styles.fontSize * state.scale}px`,
+                fontWeight: slide.styles.fontWeight,
+                color: slide.styles.fontColor,
+                opacity: slide.styles.textOpacity / 100,
+                textAlign: slide.styles.textAlign,
+                letterSpacing: `${slide.styles.letterSpacing}px`,
+                webkitTextStrokeWidth: slide.styles.strokeEnable ? `${slide.styles.strokeWidth}px` : '0',
+                webkitTextStrokeColor: slide.styles.strokeEnable ? slide.styles.strokeColor : 'transparent',
+                textShadow: slide.styles.shadowEnable ? `2px 2px ${slide.styles.shadowBlur}px ${hexToRgba(slide.styles.shadowColor, slide.styles.shadowOpacity / 100)}` : 'none',
+            });
+            
+            const bgEl = elements.slideBackground;
+            bgEl.className = 'absolute inset-0 w-full h-full bg-cover transition-all duration-300';
+            bgEl.style.backgroundImage = 'none'; bgEl.style.background = ''; bgEl.style.backgroundRepeat = 'no-repeat';
+            
+            if (slide.background.mode === 'transparent') {
+                bgEl.classList.add('transparent-bg');
+                bgEl.style.filter = 'none';
+            } else {
+                if ((slide.background.mode === 'prompt' || slide.background.mode === 'upload') && slide.background.image) {
+                    bgEl.style.backgroundImage = `url(${slide.background.image})`;
+                    bgEl.style.backgroundPosition = `${slide.background.bgPos.x}% ${slide.background.bgPos.y}%`;
+                    bgEl.style.backgroundSize = `${slide.background.bgSize}%`;
+                } else {
+                    switch(slide.background.mode) {
+                        case 'prompt':
+                            bgEl.style.background = '#374151';
+                            break;
+                        case 'solid': bgEl.style.background = slide.background.solid; break;
+                        case 'gradient': bgEl.style.background = `linear-gradient(${slide.background.gradientAngle}deg, ${slide.background.gradient[0]}, ${slide.background.gradient[1]})`; break;
+                    }
+                }
+                bgEl.style.filter = `brightness(${slide.background.brightness}%)`;
+            }
+
+            elements.logoControlsWrapper.classList.toggle('hidden', !state.logo);
+            if (state.logo) {
+                elements.slideLogo.src = state.logo;
+                elements.slideLogo.style.top = `${state.logoPos.y}%`;
+                elements.slideLogo.style.left = `${state.logoPos.x}%`;
+                elements.slideLogo.style.width = `${state.logoSize}%`;
+                elements.slideLogo.classList.remove('hidden');
+            } else {
+                elements.slideLogo.classList.add('hidden');
+            }
+            const totalSlides = state.slides.length || 1;
+            elements.slideCounter.innerText = `Slide ${state.activeSlide + 1} de ${totalSlides}`;
+            elements.slideNavCounter.innerText = `Slide ${state.activeSlide + 1} / ${totalSlides}`;
+            elements.prevSlide.disabled = totalSlides <= 1;
+            elements.nextSlide.disabled = totalSlides <= 1;
+            elements.removeSlide.disabled = totalSlides <= 1;
+        };
+
+        const generateAiImage = async () => {
+            const slide = state.slides[state.activeSlide]; if (!slide) return;
+            let prompt = elements.customPrompt.value.trim() || slide.text.replace(/\*/g, '');
+            if (!prompt) { elements.errorMessage.innerText = 'Adicione texto ao slide ou escreva um prompt.'; return; }
+            
+            elements.generateBtn.disabled = true; elements.generateBtnText.innerText = 'A Gerar...';
+            elements.slideWrapper.classList.add('generating-overlay'); elements.generatingFeedback.classList.replace('hidden', 'grid');
+            elements.errorMessage.innerText = ''; state.generatedAiImage = null; 
+            
+            try {
+                const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                const result = await response.json();
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (!base64Data) throw new Error('Dados da imagem não encontrados na resposta.');
+                state.generatedAiImage = `data:image/png;base64,${base64Data}`;
+                elements.aiPreviewThumb.src = state.generatedAiImage;
+                elements.aiPreviewContainer.classList.remove('hidden');
+            } catch (err) {
+                elements.errorMessage.innerText = `Falha ao gerar a imagem: ${err.message}.`;
+            } finally {
+                elements.generateBtn.disabled = false; elements.generateBtnText.innerText = 'Gerar Imagem de Fundo';
+                elements.slideWrapper.classList.remove('generating-overlay'); elements.generatingFeedback.classList.replace('grid', 'hidden');
+            }
+        };
+        
+        const downloadSlide = () => {
+            const slide = state.slides[state.activeSlide]; if (!slide) return;
+            const isTransparent = slide.background.mode === 'transparent';
+            
+            elements.slideCounter.classList.add('hidden');
+            
+            const elementToCapture = isTransparent ? elements.slideContent : elements.slideWrapper;
+            
+            setTimeout(() => {
+                html2canvas(elementToCapture, { allowTaint: true, useCORS: true, scale: 2, backgroundColor: null })
+                .then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.download = `post_instagram_${state.activeSlide + 1}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }).catch(err => {
+                    console.error("Download error:", err);
+                    elements.errorMessage.innerText = "Não foi possível descarregar a imagem.";
+                }).finally(() => { 
+                    elements.slideCounter.classList.remove('hidden');
+                });
+            }, 100);
+        };
+
+        // EVENT LISTENERS
+        elements.postText.addEventListener('input', (e) => {
+            if (state.slides[state.activeSlide]) {
+                state.slides[state.activeSlide].text = e.target.value;
+                updatePreview();
+            }
+        });
+
+        elements.formatSquare.addEventListener('click', () => {
+            state.format = 'square';
+            elements.formatSquare.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatPortrait.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatStory.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            updatePreview();
+        });
+        elements.formatPortrait.addEventListener('click', () => {
+            state.format = 'portrait';
+            elements.formatPortrait.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatSquare.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatStory.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            updatePreview();
+        });
+        elements.formatStory.addEventListener('click', () => {
+            state.format = 'story';
+            elements.formatStory.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatSquare.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            elements.formatPortrait.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
+            updatePreview();
+        });
+        
+        const allInputs = ['fontFamily', 'fontSize', 'fontWeight', 'fontColor', 'textAlign', 'textOpacity', 'letterSpacing', 'textWidth', 'shadowEnable', 'shadowColor', 'shadowBlur', 'shadowOpacity', 'strokeEnable', 'strokeColor', 'strokeWidth', 'bgColorSolid', 'bgColorGradient1', 'bgColorGradient2'];
+        allInputs.forEach(key => {
+            elements[key].addEventListener('input', (e) => {
+                const slide = state.slides[state.activeSlide]; if (!slide) return;
+                const value = e.target.type === 'checkbox' ? e.target.checked : (e.target.type.includes('range') || e.target.type.includes('number') ? parseFloat(e.target.value) : e.target.value);
+                
+                if (key.startsWith('bg')) {
+                    const propName = key.replace('bgColor', '').toLowerCase();
+                    if (propName === 'gradient1') slide.background.gradient[0] = value;
+                    else if (propName === 'gradient2') slide.background.gradient[1] = value;
+                    else { slide.background[propName] = value; }
+                } else {
+                    slide.styles[key] = value;
+                }
+                updateControlsFromState(); updatePreview();
             });
         });
+        
+        elements.bgModeSelector.addEventListener('click', (e) => {
+            const btn = e.target.closest('.bg-mode-btn');
+            if(btn) {
+                if (btn.tagName === 'LABEL') return; // Handled by file input change
+                const newMode = btn.dataset.mode;
+                state.slides[state.activeSlide].background.mode = newMode;
+                updateBgControlsVisibility(newMode); updatePreview();
+            }
+        });
+
+        elements.bgUpload.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const slide = state.slides[state.activeSlide];
+                    if (!slide) return;
+                    slide.background.image = ev.target.result;
+                    slide.background.mode = 'upload';
+                    slide.background.bgPos = { x: 50, y: 50 };
+                    slide.background.bgSize = 100;
+                    updateControlsFromState();
+                    updatePreview();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        elements.zoomPresets.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const slide = state.slides[state.activeSlide];
+            if (!slide) return;
+            slide.background.bgSize = parseFloat(btn.dataset.value);
+            updateControlsFromState();
+            updatePreview();
+        });
+
+        const setupBgPosButtons = () => {
+            const moveStep = 2;
+            const handler = (axis, direction) => {
+                const slide = state.slides[state.activeSlide];
+                if (!slide) return;
+                slide.background.bgPos[axis] += moveStep * direction;
+                slide.background.bgPos[axis] = Math.max(0, Math.min(100, slide.background.bgPos[axis]));
+                updatePreview();
+            };
+            elements.bgPosUp.addEventListener('click', () => handler('y', -1));
+            elements.bgPosDown.addEventListener('click', () => handler('y', 1));
+            elements.bgPosLeft.addEventListener('click', () => handler('x', -1));
+            elements.bgPosRight.addEventListener('click', () => handler('x', 1));
+        };
+
+        elements.logoUpload.addEventListener('change', (e) => {
+             if (e.target.files[0]) {
+                 const reader = new FileReader();
+                 reader.onload = (ev) => { 
+                     state.logo = ev.target.result; 
+                     elements.logoUploadText.innerText = 'Mudar Logótipo'; 
+                     elements.logoPreviewThumb.src = ev.target.result;
+                     elements.logoFeedback.classList.remove('hidden');
+                     elements.logoFeedback.classList.add('flex');
+                     updatePreview(); 
+                 };
+                 reader.readAsDataURL(e.target.files[0]);
+             }
+        });
+        elements.removeLogo.addEventListener('click', () => { state.logo = null; elements.logoUpload.value = ''; elements.logoUploadText.innerText = 'Carregar Logótipo'; elements.logoFeedback.classList.add('hidden'); updatePreview(); });
+
+        elements.prevSlide.addEventListener('click', () => { if (state.slides.length > 1) { state.activeSlide = (state.activeSlide - 1 + state.slides.length) % state.slides.length; elements.postText.value = state.slides[state.activeSlide].text; updatePreview(); updateControlsFromState(); } });
+        elements.nextSlide.addEventListener('click', () => { if (state.slides.length > 1) { state.activeSlide = (state.activeSlide + 1) % state.slides.length; elements.postText.value = state.slides[state.activeSlide].text; updatePreview(); updateControlsFromState(); } });
+        
+        elements.addSlide.addEventListener('click', () => {
+            state.slides.push(getDefaultSlideConfig("Novo slide..."));
+            state.activeSlide = state.slides.length - 1;
+            elements.postText.value = state.slides[state.activeSlide].text;
+            updatePreview(); updateControlsFromState();
+        });
+
+        elements.removeSlide.addEventListener('click', () => {
+            if (state.slides.length > 1) {
+                state.slides.splice(state.activeSlide, 1);
+                if (state.activeSlide >= state.slides.length) {
+                    state.activeSlide = state.slides.length - 1;
+                }
+                elements.postText.value = state.slides[state.activeSlide].text;
+                updatePreview(); updateControlsFromState();
+            }
+        });
+
+        elements.logoSize.addEventListener('input', (e) => {
+            state.logoSize = parseFloat(e.target.value);
+            elements.logoSizeValue.innerText = e.target.value;
+            updatePreview();
+        });
+
+
+        const setupPositionButtons = (groupId, isLogo = false) => {
+            getEl(groupId).addEventListener('click', e => {
+                const btn = e.target.closest('button'); if(!btn) return;
+                const pos = btn.dataset.pos;
+                const axis = groupId.endsWith('x') ? 'x' : 'y';
+                const moveStep = 2; const edgePadding = 5;
+                const targetObj = isLogo ? state.logoPos : state.slides[state.activeSlide].textPos;
+
+                if (pos === 'center') { targetObj[axis] = 50; }
+                else if (pos === 'up' || pos === 'left') { targetObj[axis] -= moveStep; }
+                else if (pos === 'down' || pos === 'right') { targetObj[axis] += moveStep; }
+                
+                targetObj[axis] = Math.max(edgePadding, Math.min(100 - edgePadding, targetObj[axis]));
+                updatePreview();
+            });
+        };
+        
+        elements.brightnessPresets.addEventListener('click', (e) => {
+            const btn = e.target.closest('button'); if(!btn) return;
+            state.slides[state.activeSlide].background.brightness = parseFloat(btn.dataset.value);
+            updateControlsFromState(); updatePreview();
+        });
+        elements.anglePresets.addEventListener('click', (e) => {
+            const btn = e.target.closest('button'); if(!btn) return;
+            state.slides[state.activeSlide].background.gradientAngle = parseFloat(btn.dataset.value);
+            updateControlsFromState(); updatePreview();
+        });
+
+        elements.applyToAll.addEventListener('click', () => {
+            const sourceSlide = state.slides[state.activeSlide]; if (!sourceSlide) return;
+            const newLogoPos = { ...state.logoPos };
+            const newLogoSize = state.logoSize;
+
+            state.slides = state.slides.map(slide => ({
+                ...slide, textPos: { ...sourceSlide.textPos }, styles: { ...sourceSlide.styles }, background: { ...sourceSlide.background },
+            }));
+            
+            // This is a simple browser alert. For a better UX, a custom modal would be better.
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-5 right-5 bg-green-500 text-white text-sm font-bold px-4 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+            alertDiv.innerText = 'Estilo aplicado a todos os slides!';
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 2000);
+            
+            updatePreview();
+        });
+        
+        elements.applyAiBg.addEventListener('click', () => {
+            if(state.generatedAiImage) {
+                const slide = state.slides[state.activeSlide];
+                slide.background.image = state.generatedAiImage;
+                slide.background.mode = 'prompt';
+                slide.background.bgPos = { x: 50, y: 50 };
+                slide.background.bgSize = 100;
+                updatePreview(); updateControlsFromState();
+            }
+        });
+
+        elements.generateBtn.addEventListener('click', generateAiImage);
+        elements.downloadBtn.addEventListener('click', downloadSlide);
+
+        // INITIALIZATION
+        setupPositionButtons('pos-btn-group-text-y');
+        setupPositionButtons('pos-btn-group-text-x');
+        setupPositionButtons('pos-btn-group-logo-y', true);
+        setupPositionButtons('pos-btn-group-logo-x', true);
+        setupBgPosButtons();
+        state.slides.push(getDefaultSlideConfig(""));
+        elements.postText.value = state.slides[0].text;
+        updatePreview();
+        updateControlsFromState();
     });
     </script>
 </body>
 </html>
+

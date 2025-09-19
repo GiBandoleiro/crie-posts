@@ -438,7 +438,7 @@
             elements.errorMessage.innerText = ''; state.generatedAiImage = null; 
             
             try {
-                const arquivo_gerado = "AIzaSyA0LecQ2UW0nZvLTlnp-Utp4NHxVeIfvX8"; // Substitua pela sua chave API
+                const arquivo_gerado = "SEM CHAVE API (API KEY)"; // Substitua pela sua chave API
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${arquivo_gerado}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } };
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });

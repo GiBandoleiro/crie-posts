@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criador de Posts para Instagram com IA</title>
     
+    <!-- Favicon (Ícone da Aba) -->
+    <link rel="icon" type="image/jpeg" href="https://imgur.com/a/fvIVMjU">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -31,6 +34,19 @@
 </head>
 <body class="bg-gray-900 text-white">
 
+    <div class="w-full text-center py-4 bg-gray-800 shadow-lg">
+        <p class="text-sm flex justify-center items-center gap-2">
+            Desenvolvido por: 
+            <a href="https://instagram.com/giovanni.fg" target="_blank" class="text-pink-400 hover:text-pink-300 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                    <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.3.5.6.2 1 .6 1.4 1.1.4.4.9 1 1.1 1.6.2.4.4 1.1.5 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.5 2.3-.2.6-.6 1-1.1 1.4-.4.4-1 .9-1.6 1.1-.4.2-1.1.4-2.3.5-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.3-2.3-.5-.6-.2-1-.6-1.4-1.1-.4-.4-.9-1-1.1-1.6-.2-.4-.4-1.1-.5-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.5-2.3.2-.6.6-1 1.1-1.4.4-.4 1-.9 1.6-1.1.4-.2 1.1-.4 2.3-.5C8.4 2.2 8.8 2.2 12 2.2m0-2.2C8.7 0 8.3 0 7 .1 5.7.2 4.7.4 4 .7c-.9.4-1.7 1-2.4 1.7C.9 3.1.3 3.9 0 4.8c-.3.7-.5 1.7-.6 3C-.7 9 .7 9.3.7 12s0 3 .1 4.2c.1 1.3.3 2.3.6 3 .3.9.9 1.7 1.6 2.4.7.7 1.5 1.3 2.4 1.6.7.3 1.7.5 3 .6 1.2.1 1.6.1 4.9.1s3.6 0 4.9-.1c1.3-.1 2.3-.3 3-.6.9-.3 1.7-.9 2.4-1.6.7-.7 1.3-1.5 1.6-2.4.3-.7.5-1.7.6-3 .1-1.2.1-1.6.1-4.9s0-3.6-.1-4.9c-.1-1.3-.3-2.3-.6-3-.3-.9-.9-1.7-1.6-2.4C21.1 1.6 20.3 1 19.4.7c-.7-.3-1.7-.5-3-.6C15.6 0 15.2 0 12 0z"/>
+                    <path d="M12 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8.1 4 4 0 0 1 0 8.1zM18.4 4.6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                </svg>
+                @giovanni.fg
+            </a>
+        </p>
+    </div>
+
     <div class="flex flex-col lg:flex-row p-4 lg:p-6 gap-6 min-h-screen">
 
         <!-- PAINEL DE CONTROLOS (ESQUERDA) -->
@@ -48,10 +64,10 @@
                 <div class="flex flex-col gap-4 order-2">
                     <div>
                         <h3 class="font-semibold mb-2 text-sm text-center">2. Formato</h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button id="format-square" class="text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Quadrado</button>
-                            <button id="format-portrait" class="text-sm py-2 rounded-lg transition bg-cyan-500 text-white shadow-lg">Retrato</button>
-                            <button id="format-story" class="text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Story</button>
+                        <div class="grid grid-cols-3 gap-2" id="format-buttons">
+                            <button id="format-square" data-format="square" class="format-btn text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Quadrado</button>
+                            <button id="format-portrait" data-format="portrait" class="format-btn text-sm py-2 rounded-lg transition bg-cyan-500 text-white shadow-lg">Retrato</button>
+                            <button id="format-story" data-format="story" class="format-btn text-sm py-2 rounded-lg transition bg-gray-700 hover:bg-gray-600">Story</button>
                         </div>
                     </div>
                     <div>
@@ -74,13 +90,16 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-sm font-medium">Largura Texto (<span id="textWidthValue">90</span>%)</label><input type="range" id="textWidth" min="30" max="100" value="90" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
-                        <div><label class="text-sm font-medium">Esticar Letras (<span id="letterSpacingValue">0</span>px)</label><input type="range" id="letterSpacing" min="-5" max="20" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                        <div><label class="text-sm font-medium">Letras (<span id="letterSpacingValue">0</span>px)</label><input type="range" id="letterSpacing" min="-5" max="20" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 items-center">
                         <div><label class="text-sm font-medium">Cor</label><input type="color" id="fontColor" value="#FFFFFF" class="w-full h-10 p-1 bg-gray-600 border border-gray-500 rounded-md cursor-pointer"></div>
                         <div><label class="text-sm font-medium">Opacidade (<span id="textOpacityValue">100</span>%)</label><input type="range" id="textOpacity" min="0" max="100" value="100" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
                     </div>
-                    <div><label class="text-sm font-medium">Alinh.</label><select id="textAlign" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option value="left">Esq.</option><option value="center" selected>Centro</option><option value="right">Dir.</option></select></div>
+                     <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-sm font-medium">Alinh.</label><select id="textAlign" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option value="left">Esq.</option><option value="center" selected>Centro</option><option value="right">Dir.</option></select></div>
+                        <div><label class="text-sm font-medium">Linhas (<span id="lineHeightValue">1.5</span>)</label><input type="range" id="lineHeight" min="0.8" max="3" step="0.1" value="1.5" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
+                    </div>
                 </div>
                 
                 <!-- Efeitos de Texto -->
@@ -112,7 +131,7 @@
                         <button data-mode="solid" class="bg-mode-btn py-2 rounded-lg bg-gray-700">Cor</button>
                         <button data-mode="gradient" class="bg-mode-btn py-2 rounded-lg bg-gray-700">Degradê</button>
                         <button data-mode="transparent" class="col-span-2 bg-mode-btn py-2 rounded-lg bg-gray-700">Sem Fundo</button>
-                     </div>
+                   </div>
                     <input type="file" id="bgUpload" class="hidden" accept="image/*">
                     <textarea id="custom-prompt" class="hidden w-full h-20 bg-gray-600 rounded-lg p-3 text-sm" placeholder="Ex: Um gato astronauta... (deixe em branco para usar o texto do slide)"></textarea>
                     <div id="solid-color-picker" class="hidden"><label class="text-sm">Cor de Fundo</label><input type="color" id="bgColorSolid" value="#4A5568" class="w-full h-10 p-1 bg-gray-600 rounded-md"></div>
@@ -141,29 +160,29 @@
                      </div>
                      <!-- NEW Background Image Controls -->
                      <div id="bg-image-controls" class="hidden bg-gray-900/50 p-3 rounded-lg space-y-4">
-                        <h4 class="font-semibold text-sm text-center">Controlos da Imagem de Fundo</h4>
-                        <div>
-                            <label class="text-sm">Zoom do Fundo</label>
-                            <div id="zoom-presets" class="grid grid-cols-5 gap-1 text-xs mt-1">
-                                <button data-value="100" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">100%</button>
-                                <button data-value="125" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">125%</button>
-                                <button data-value="150" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">150%</button>
-                                <button data-value="175" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">175%</button>
-                                <button data-value="200" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">200%</button>
-                            </div>
-                        </div>
-                        <div>
+                         <h4 class="font-semibold text-sm text-center">Controlos da Imagem de Fundo</h4>
+                         <div>
+                             <label class="text-sm">Zoom do Fundo</label>
+                             <div id="zoom-presets" class="grid grid-cols-5 gap-1 text-xs mt-1">
+                                 <button data-value="100" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">100%</button>
+                                 <button data-value="125" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">125%</button>
+                                 <button data-value="150" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">150%</button>
+                                 <button data-value="175" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">175%</button>
+                                 <button data-value="200" class="preset-btn bg-gray-600 hover:bg-gray-500 rounded py-1">200%</button>
+                             </div>
+                         </div>
+                         <div>
                              <label class="text-sm text-center block">Posição do Fundo</label>
-                            <div class="flex justify-center items-center gap-4 mt-2">
-                                <button id="bg-pos-left" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                                <div class="flex flex-col gap-1">
+                             <div class="flex justify-center items-center gap-4 mt-2">
+                                 <button id="bg-pos-left" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                                 <div class="flex flex-col gap-1">
                                      <button id="bg-pos-up" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button>
                                      <button id="bg-pos-down" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
-                                </div>
-                                <button id="bg-pos-right" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
-                            </div>
-                        </div>
-                    </div>
+                                 </div>
+                                 <button id="bg-pos-right" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                             </div>
+                         </div>
+                     </div>
                     <button id="apply-to-all" class="w-full text-xs py-2 rounded-lg bg-gray-600 hover:bg-gray-500 transition">Aplicar estilo a todos os slides</button>
                     <p id="error-message" class="text-xs text-red-400 text-center"></p>
                 </div>
@@ -193,27 +212,33 @@
         <!-- PAINEL DE VISUALIZAÇÃO (DIREITA) -->
         <div class="flex-1 flex flex-col items-center justify-center p-0 md:p-6">
             <div id="preview-container" class="w-full max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center gap-4">
-                <div class="w-full flex items-center justify-center relative">
-                    <button id="prev-slide" class="absolute left-0 -translate-x-full p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                    <div id="slide-wrapper" class="w-full shadow-2xl relative aspect-[1080/1350] overflow-hidden">
-                        <div class="absolute inset-0 z-20 hidden place-items-center" id="generating-feedback"><div class="loader"></div></div>
-                        <div id="slide-background" class="absolute inset-0 w-full h-full bg-cover transition-all duration-300"></div>
-                        <div id="slide-content" class="w-full h-full relative z-10">
-                            <div id="text-wrapper" class="absolute p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><p id="slide-text" class="whitespace-pre-wrap break-words w-full transition-all"></p></div>
-                            <img id="slide-logo" src="" alt="Logótipo" class="absolute h-auto object-contain hidden" style="top: 92%; left: 92%; transform: translate(-50%, -50%);"/>
-                            <div id="slide-counter" class="absolute bottom-4 left-4 text-xs text-white/50 z-30"></div>
-                        </div>
+                
+                <div id="slide-wrapper" class="w-full shadow-2xl relative aspect-[1080/1350] overflow-hidden">
+                    <div class="absolute inset-0 z-20 hidden place-items-center" id="generating-feedback"><div class="loader"></div></div>
+                    <div id="slide-background" class="absolute inset-0 w-full h-full bg-cover transition-all duration-300"></div>
+                    <div id="slide-content" class="w-full h-full relative z-10">
+                        <div id="text-wrapper" class="absolute p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><p id="slide-text" class="whitespace-pre-wrap break-words w-full transition-all"></p></div>
+                        <img id="slide-logo" src="" alt="Logótipo" class="absolute h-auto object-contain hidden" style="top: 92%; left: 92%; transform: translate(-50%, -50%);"/>
+                        <div id="slide-counter" class="absolute bottom-4 left-4 text-xs text-white/50 z-30"></div>
                     </div>
-                    <button id="next-slide" class="absolute right-0 translate-x-full p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
                 </div>
-                 <div class="w-full flex items-center justify-between mt-4">
-                     <div class="flex gap-4">
-                          <button id="add-slide" class="text-xs bg-gray-700 hover:bg-gray-600 rounded-lg px-3 py-2 transition">+ Adicionar Slide</button>
-                          <button id="remove-slide" class="text-xs bg-red-800/50 hover:bg-red-800/80 text-red-300 rounded-lg px-3 py-2 transition">- Remover Slide</button>
-                     </div>
-                     <div class="flex flex-col items-center"><button id="download-btn" class="flex items-center gap-2 bg-cyan-500 text-white font-bold px-6 py-2 rounded-lg hover:bg-cyan-600 transition text-sm sm:text-base">Baixar Imagem</button><span id="slide-nav-counter" class="text-xs text-gray-500 mt-1"></span></div>
-                     <div class="w-24"> <!-- Espaço em branco para alinhar com o botão "Adicionar" --> </div>
-                 </div>
+
+                <!-- Controlos centralizados -->
+                <div class="w-full flex flex-col items-center gap-4 mt-2">
+                    <!-- Setas de Navegação -->
+                    <div class="flex items-center justify-center gap-8 w-full">
+                         <button id="prev-slide" class="p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                         <span id="slide-nav-counter" class="text-sm text-gray-400 font-medium tabular-nums"></span>
+                         <button id="next-slide" class="p-3 bg-gray-700 rounded-full hover:bg-gray-600 disabled:opacity-50 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
+                        <button id="add-slide" class="text-sm bg-gray-700 hover:bg-gray-600 rounded-lg px-4 py-2 transition">+ Adicionar Slide</button>
+                        <button id="download-btn" class="flex items-center gap-2 bg-cyan-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-cyan-600 transition text-base">Baixar Imagem</button>
+                        <button id="remove-slide" class="text-sm bg-red-800/50 hover:bg-red-800/80 text-red-300 rounded-lg px-4 py-2 transition">- Remover Slide</button>
+                    </div>
+                </div>
             </div>
             <p class="text-xs text-gray-600 mt-8 text-center">Use *palavra* para negrito. Use os controlos para ajustar.</p>
         </div>
@@ -228,6 +253,7 @@
             fontSizeValue: getEl('fontSizeValue'), fontWeight: getEl('fontWeight'), fontWeightValue: getEl('fontWeightValue'), fontColor: getEl('fontColor'),
             textAlign: getEl('textAlign'), textOpacity: getEl('textOpacity'), textOpacityValue: getEl('textOpacityValue'), textWidth: getEl('textWidth'), textWidthValue: getEl('textWidthValue'),
             letterSpacing: getEl('letterSpacing'), letterSpacingValue: getEl('letterSpacingValue'),
+            lineHeight: getEl('lineHeight'), lineHeightValue: getEl('lineHeightValue'),
             shadowEnable: getEl('shadowEnable'), shadowControls: getEl('shadowControls'), shadowColor: getEl('shadowColor'),
             shadowBlur: getEl('shadowBlur'), shadowBlurValue: getEl('shadowBlurValue'), shadowOpacity: getEl('shadowOpacity'), shadowOpacityValue: getEl('shadowOpacityValue'),
             strokeEnable: getEl('strokeEnable'), strokeControls: getEl('strokeControls'), strokeColor: getEl('strokeColor'), strokeWidth: getEl('strokeWidth'),
@@ -249,8 +275,7 @@
             posBtnGroupLogoY: getEl('pos-btn-group-logo-y'), posBtnGroupLogoX: getEl('pos-btn-group-logo-x'),
             logoControlsWrapper: getEl('logo-controls-wrapper'), logoSize: getEl('logoSize'), logoSizeValue: getEl('logoSizeValue'),
             addSlide: getEl('add-slide'), removeSlide: getEl('remove-slide'),
-            formatSquare: getEl('format-square'), formatPortrait: getEl('format-portrait'), formatStory: getEl('format-story'),
-            // New elements
+            formatButtons: getEl('format-buttons'),
             bgUpload: getEl('bgUpload'), bgImageControls: getEl('bg-image-controls'), zoomPresets: getEl('zoom-presets'),
             bgPosUp: getEl('bg-pos-up'), bgPosDown: getEl('bg-pos-down'), bgPosLeft: getEl('bg-pos-left'), bgPosRight: getEl('bg-pos-right'),
         };
@@ -261,7 +286,7 @@
 
         const getDefaultSlideConfig = (text = "") => ({
             text, textPos: { x: 50, y: 50 },
-            styles: { fontFamily: 'Poppins', fontSize: 48, fontWeight: 700, fontColor: '#FFFFFF', textAlign: 'center', textOpacity: 100, letterSpacing: 0, textWidth: 90, shadowEnable: true, shadowColor: '#000000', shadowBlur: 5, shadowOpacity: 50, strokeEnable: false, strokeColor: '#000000', strokeWidth: 1 },
+            styles: { fontFamily: 'Poppins', fontSize: 48, fontWeight: 700, fontColor: '#FFFFFF', textAlign: 'center', textOpacity: 100, letterSpacing: 0, textWidth: 90, lineHeight: 1.5, shadowEnable: true, shadowColor: '#000000', shadowBlur: 5, shadowOpacity: 50, strokeEnable: false, strokeColor: '#000000', strokeWidth: 1 },
             background: { mode: 'prompt', brightness: 100, image: null, solid: '#4A5568', gradient: ['#4A5568', '#2D3748'], gradientAngle: 180, bgPos: { x: 50, y: 50 }, bgSize: 100 }
         });
         
@@ -292,7 +317,7 @@
                 btn.classList.toggle('bg-cyan-500', isActive); btn.classList.toggle('text-white', isActive); btn.classList.toggle('bg-gray-600', !isActive);
             });
 
-             const valueDisplayMap = { fontSize: 'fontSizeValue', fontWeight: 'fontWeightValue', letterSpacing: 'letterSpacingValue', textWidth: 'textWidthValue', shadowBlur: 'shadowBlurValue', strokeWidth: 'strokeWidthValue', textOpacity: 'textOpacityValue', shadowOpacity: 'shadowOpacityValue', logoSize: 'logoSizeValue' };
+             const valueDisplayMap = { fontSize: 'fontSizeValue', fontWeight: 'fontWeightValue', letterSpacing: 'letterSpacingValue', textWidth: 'textWidthValue', lineHeight: 'lineHeightValue', shadowBlur: 'shadowBlurValue', strokeWidth: 'strokeWidthValue', textOpacity: 'textOpacityValue', shadowOpacity: 'shadowOpacityValue', logoSize: 'logoSizeValue' };
             Object.keys(valueDisplayMap).forEach(id => { if (elements[id]) elements[valueDisplayMap[id]].innerText = elements[id].value; });
             
             elements.shadowControls.classList.toggle('hidden', !styles.shadowEnable);
@@ -349,6 +374,7 @@
                 opacity: slide.styles.textOpacity / 100,
                 textAlign: slide.styles.textAlign,
                 letterSpacing: `${slide.styles.letterSpacing}px`,
+                lineHeight: slide.styles.lineHeight,
                 webkitTextStrokeWidth: slide.styles.strokeEnable ? `${slide.styles.strokeWidth}px` : '0',
                 webkitTextStrokeColor: slide.styles.strokeEnable ? slide.styles.strokeColor : 'transparent',
                 textShadow: slide.styles.shadowEnable ? `2px 2px ${slide.styles.shadowBlur}px ${hexToRgba(slide.styles.shadowColor, slide.styles.shadowOpacity / 100)}` : 'none',
@@ -390,7 +416,7 @@
             }
             const totalSlides = state.slides.length || 1;
             elements.slideCounter.innerText = `Slide ${state.activeSlide + 1} de ${totalSlides}`;
-            elements.slideNavCounter.innerText = `Slide ${state.activeSlide + 1} / ${totalSlides}`;
+            elements.slideNavCounter.innerText = `${state.activeSlide + 1} / ${totalSlides}`;
             elements.prevSlide.disabled = totalSlides <= 1;
             elements.nextSlide.disabled = totalSlides <= 1;
             elements.removeSlide.disabled = totalSlides <= 1;
@@ -406,7 +432,9 @@
             elements.errorMessage.innerText = ''; state.generatedAiImage = null; 
             
             try {
-                const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+                // A sua chave API é colocada aqui.
+                const arquivo_gerado = "COLE_SUA_CHAVE_API_AQUI"; // Substitua pela sua chave API
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${arquivo_gerado}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } };
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
@@ -458,29 +486,31 @@
             }
         });
 
-        elements.formatSquare.addEventListener('click', () => {
-            state.format = 'square';
-            elements.formatSquare.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatPortrait.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatStory.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            updatePreview();
-        });
-        elements.formatPortrait.addEventListener('click', () => {
-            state.format = 'portrait';
-            elements.formatPortrait.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatSquare.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatStory.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            updatePreview();
-        });
-        elements.formatStory.addEventListener('click', () => {
-            state.format = 'story';
-            elements.formatStory.classList.add('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatSquare.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            elements.formatPortrait.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg');
-            updatePreview();
+        const updateFormatButtons = (activeFormat) => {
+            elements.formatButtons.querySelectorAll('.format-btn').forEach(btn => {
+                const isSelected = btn.dataset.format === activeFormat;
+                btn.classList.toggle('bg-cyan-500', isSelected);
+                btn.classList.toggle('text-white', isSelected);
+                btn.classList.toggle('shadow-lg', isSelected);
+                btn.classList.toggle('ring-2', isSelected);
+                btn.classList.toggle('ring-offset-2', isSelected);
+                btn.classList.toggle('ring-offset-gray-800', isSelected);
+                btn.classList.toggle('ring-cyan-400', isSelected);
+                
+                btn.classList.toggle('bg-gray-700', !isSelected);
+            });
+        };
+
+        elements.formatButtons.addEventListener('click', (e) => {
+            const btn = e.target.closest('.format-btn');
+            if (btn) {
+                state.format = btn.dataset.format;
+                updateFormatButtons(state.format);
+                updatePreview();
+            }
         });
         
-        const allInputs = ['fontFamily', 'fontSize', 'fontWeight', 'fontColor', 'textAlign', 'textOpacity', 'letterSpacing', 'textWidth', 'shadowEnable', 'shadowColor', 'shadowBlur', 'shadowOpacity', 'strokeEnable', 'strokeColor', 'strokeWidth', 'bgColorSolid', 'bgColorGradient1', 'bgColorGradient2'];
+        const allInputs = ['fontFamily', 'fontSize', 'fontWeight', 'fontColor', 'textAlign', 'textOpacity', 'letterSpacing', 'textWidth', 'lineHeight', 'shadowEnable', 'shadowColor', 'shadowBlur', 'shadowOpacity', 'strokeEnable', 'strokeColor', 'strokeWidth', 'bgColorSolid', 'bgColorGradient1', 'bgColorGradient2'];
         allInputs.forEach(key => {
             elements[key].addEventListener('input', (e) => {
                 const slide = state.slides[state.activeSlide]; if (!slide) return;
@@ -631,7 +661,6 @@
                 ...slide, textPos: { ...sourceSlide.textPos }, styles: { ...sourceSlide.styles }, background: { ...sourceSlide.background },
             }));
             
-            // This is a simple browser alert. For a better UX, a custom modal would be better.
             const alertDiv = document.createElement('div');
             alertDiv.className = 'fixed top-5 right-5 bg-green-500 text-white text-sm font-bold px-4 py-3 rounded-lg shadow-lg z-50 animate-pulse';
             alertDiv.innerText = 'Estilo aplicado a todos os slides!';
@@ -663,10 +692,11 @@
         setupPositionButtons('pos-btn-group-logo-y', true);
         setupPositionButtons('pos-btn-group-logo-x', true);
         setupBgPosButtons();
-        state.slides.push(getDefaultSlideConfig(""));
+        state.slides.push(getDefaultSlideConfig("Escreva aqui para criar o seu post!"));
         elements.postText.value = state.slides[0].text;
         updatePreview();
         updateControlsFromState();
+        updateFormatButtons(state.format);
     });
     </script>
 </body>

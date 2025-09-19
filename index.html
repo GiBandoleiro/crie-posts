@@ -21,6 +21,61 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+<style>
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-regular-web.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-medium-web.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-semibold-web.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-bold-web.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-extrabold-web.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chirp';
+    src: url('https://abs.twimg.com/fonts/chirp-heavy-web.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  body { font-family: 'Chirp', 'Poppins', sans-serif; }
+
+  .range-thumb-cyan::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #06b6d4;
+    cursor: pointer;
+    border-radius: 50%;
+  }
         body { font-family: 'Poppins', sans-serif; }
         .range-thumb-cyan::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #06b6d4; cursor: pointer; border-radius: 50%; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #06b6d4; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
@@ -89,7 +144,7 @@
                 <!-- Estilo do Texto -->
                 <div class="bg-gray-700/50 p-4 rounded-lg space-y-4 order-4">
                     <h3 class="font-semibold text-center">4. Estilo do Texto</h3>
-                    <div><label class="text-sm font-medium">Fonte</label><select id="fontFamily" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option>Poppins</option><option>Montserrat</option><option>Roboto</option><option>Lato</option><option>Oswald</option><option>Playfair Display</option><option>Anton</option><option>Bebas Neue</option></select></div>
+                    <div><label class="text-sm font-medium">Fonte</label><select id="fontFamily" class="w-full mt-1 bg-gray-600 border-gray-500 rounded-md p-2 text-sm"><option>Poppins</option><option>Montserrat</option><option>Roboto</option><option>Lato</option><option>Oswald</option><option>Playfair Display</option><option>Anton</option><option>Bebas Neue</option> <option value="Chirp">Chirp</option> </select></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-sm font-medium">Tamanho (<span id="fontSizeValue">48</span>px)</label><input type="range" id="fontSize" min="16" max="120" value="48" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>
                         <div><label class="text-sm font-medium">Peso (<span id="fontWeightValue">700</span>)</label><input type="range" id="fontWeight" min="100" max="900" step="100" value="700" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan"></div>

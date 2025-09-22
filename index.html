@@ -21,7 +21,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-<style>
   @font-face {
     font-family: 'Chirp';
     src: url('https://abs.twimg.com/fonts/chirp-regular-web.woff2') format('woff2');
@@ -253,7 +252,7 @@
                     <h4 class="font-semibold text-sm text-center">Controlos do Logótipo</h4>
                     <div>
                         <label class="text-sm">Tamanho do Logótipo (<span id="logoSizeValue">16</span>%)</label>
-                        <input type="range" id="logoSize" min="5" max="50" value="16" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan">
+                        <input type="range" id="logoSize" min="5" max="100" value="16" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-thumb-cyan">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col items-center gap-1"><span class="text-xs">Altura</span><div class="flex gap-1" id="pos-btn-group-logo-y"><button data-pos="up" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button><button data-pos="center" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="12" x2="3" y2="12"></line></svg></button><button data-pos="down" class="p-2 rounded-md bg-gray-600 hover:bg-gray-500"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button></div></div>
@@ -493,7 +492,7 @@
             elements.errorMessage.innerText = ''; state.generatedAiImage = null; 
             
             try {
-                const arquivo_gerado = "SEM CHAVE API (API KEY)"; // Substitua pela sua chave API
+                const arquivo_gerado = "AIzaSyA0LecQ2UW0nZvLTlnp-Utp4NHxVeIfvX8"; // Substitua pela sua chave API
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${arquivo_gerado}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } };
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
